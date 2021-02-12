@@ -3,12 +3,12 @@ const World = Matter.World
 const Bodies = Matter.Bodies
 const Constraint = Matter.Constraint 
 
-var balloon,balloonImg,backgroundImg;
+var balloon,balloonImg,backgroundImg,database,balloonPosition;
 
 function preload(){
 
-  balloonImg = loadImage("Hot Air Ballon-02.png")
-  backgroundImg = loadImage("Hot Air Ballon-01.png")
+ // balloonImg = loadAnimation("img2.png","img3","img4")
+  backgroundImg = loadImage("img1.png")
 
 }
 
@@ -19,26 +19,58 @@ function setup() {
   console.log(database)
 
   balloon = createSprite(400, 200, 50, 50);
-  balloon.addImage(balloonImg)
+  //balloon.addAnimation(balloonImg)
+
+  var balloonPosition = database.ref("balloon/height")
+  balloonPosition.on("value",readPosition,showError)
 }
 
 function draw() {
   background(backgroundImg);  
+
+  stroke("blue")
+  fill("Blue")
+  textSize(20)
+  text("Use Arrow Keys To Move The Hot Air Balloon",100,100)
+
   drawSprites();
 
   if(keyDown(LEFT_ARROW)){
+    updateHeight(-10,0)
     balloon.x = balloon.x - 10
   }
 
   else if(keyDown(RIGHT_ARROW)){
+    updateHeight(10,0)
     balloon.x = balloon.x + 10
   }
 
   if(keyDown(UP_ARROW)){
+    updateHeight(0,-10)
     balloon.y = balloon.y - 10
+    balloon.scale = balloon.scale + 0.01
   }
 
   if(keyDown(DOWN_ARROW)){
+    updateHeight(0,+10)
     balloon.y = balloon.y + 10
+    balloon.scale = balloon.scale - 0.01
   }
+}
+
+function readHeight (x,y){
+  database.ref("balloon/height").set({
+    'x' : height.x + x,
+    'y' : height.y + y
+  })
+}
+
+function readPosition(data){
+  height = data.val()
+  balloon.x = height.x
+  balloon.y = height.y
+}
+
+function showError(){
+  console.log("Error i n writing to the database")
 }
